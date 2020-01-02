@@ -13,32 +13,33 @@ request({
     } else {
         console.log('Initial deletion successful. Received ' + res.statusCode);
 
-        for (i = 1; i <= 365; i++) {
-            var dayNum = i;
-            var options = {
-                url: 'https://developers.youversionapi.com/1.0/verse_of_the_day/' + dayNum + '?version_id=206',
-                headers: {
-                    'accept': 'application/json',
-                    'Accept-Language': 'en',
-                    'x-youversion-developer-token': 'vlDqZNJSCXQMMP5m0GsEMghNwCY',
-                    'User-Agent': 'nategage'
-                }
-            };
+        var options = {
+            url: 'https://developers.youversionapi.com/1.0/verse_of_the_day?version_id=206',
+            headers: {
+                'accept': 'application/json',
+                'Accept-Language': 'en',
+                'x-youversion-developer-token': 'vlDqZNJSCXQMMP5m0GsEMghNwCY',
+                'User-Agent': 'nategage'
+            }
+        };
 
-            function youversionCallback(error, response, body) {
-                if (error || response.statusCode != 200) {
-                    console.log('Error getting data from Youversion.');
-                } else {
-                    var verseJSON = JSON.parse(body);
+        function youversionCallback(error, response, body) {
+            if (error || response.statusCode != 200) {
+                console.log('Error getting data from Youversion.');
+            } else {
+                var verseJSONArray = JSON.parse(body);
 
+                verseJSONArray.data.forEach(function(item, index) {
+                    console.log('I am at object # ' + index);
+                    
                     const updatedQuote = {
-                        date: verseJSON.day,
-                        body: verseJSON.verse.text,
-                        source: verseJSON.verse.human_reference
+                        date: item.day,
+                        body: item.verse.text,
+                        source: item.verse.human_reference
                     }
-
+    
                     const formData = JSON.stringify(updatedQuote)
-
+    
                     request({
                         headers: {
                             'Content-Type': 'application/json',
@@ -54,12 +55,13 @@ request({
                             console.log('Success! Received ' + res.statusCode);
                         }
                     });
-                }
+                })
+                
             }
+        }
 
-            request(options, youversionCallback);
-        };
-    }
+        request(options, youversionCallback);
+    };
 });
 
 
